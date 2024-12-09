@@ -129,11 +129,20 @@ func parseMetadata(filepath string) (string, error) {
 
 // applyWallpaper applies the wallpaper using gsettings (GNOME-based systems).
 func applyWallpaper(filePath string) error {
+	// Set wallpaper for the light theme
 	cmd := exec.Command("gsettings", "set", "org.gnome.desktop.background", "picture-uri", "file://"+filePath)
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("failed to set wallpaper: %v", err)
+		return fmt.Errorf("failed to set light theme wallpaper: %v", err)
 	}
-	fmt.Println("Wallpaper applied:", filePath)
+
+	// Set wallpaper for the dark theme
+	cmdDark := exec.Command("gsettings", "set", "org.gnome.desktop.background", "picture-uri-dark", "file://"+filePath)
+	err = cmdDark.Run()
+	if err != nil {
+		return fmt.Errorf("failed to set dark theme wallpaper: %v", err)
+	}
+
+	fmt.Println("Wallpaper applied for both light and dark themes:", filePath)
 	return nil
 }
