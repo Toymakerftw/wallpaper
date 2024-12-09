@@ -1,2 +1,2 @@
-wallpaper: wallpaper.jpg
+wallpaper: bleach.jpg
 uploaded: 2024-12-09
