@@ -2,8 +2,6 @@ package main
 
 import (
 	"bufio"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
@@ -60,29 +58,13 @@ func checkForUpdates() error {
 		return fmt.Errorf("failed to parse metadata.txt: %v", err)
 	}
 
-	// Check if the wallpaper is already applied by comparing image hashes
+	// Check if the wallpaper is already applied
 	localWallpaper := wallpaperDir + "/current-wallpaper.jpg"
 	if _, err := os.Stat(localWallpaper); err == nil {
-		// Calculate the hash of the current and new wallpaper
-		existingHash, err := getImageHash(localWallpaper)
-		if err != nil {
-			log.Println("Error calculating hash of the current wallpaper:", err)
-		} else {
-			// Download the new wallpaper temporarily to compare
-			newWallpaperPath := wallpaperDir + "/new-wallpaper.jpg"
-			wallpaperURL := repoBaseURL + "/" + wallpaper
-			err = downloadFile(wallpaperURL, newWallpaperPath)
-			if err != nil {
-				return fmt.Errorf("failed to download wallpaper: %v", err)
-			}
-
-			newHash, err := getImageHash(newWallpaperPath)
-			if err != nil {
-				log.Println("Error calculating hash of the new wallpaper:", err)
-			} else if existingHash == newHash {
-				log.Println("Wallpaper is already up to date.")
-				return nil
-			}
+		current, _ := os.ReadFile(localWallpaper)
+		if wallpaper == string(current) {
+			log.Println("Wallpaper is already up to date.")
+			return nil
 		}
 	}
 
@@ -207,23 +189,4 @@ func getDBusSession() string {
 		return ""
 	}
 	return strings.TrimSpace(string(output))
-}
-
-// getImageHash calculates the SHA-256 hash of the image at the given path.
-func getImageHash(filepath string) (string, error) {
-	file, err := os.Open(filepath)
-	if err != nil {
-		return "", fmt.Errorf("failed to open file: %v", err)
-	}
-	defer file.Close()
-
-	// Calculate the hash of the file content
-	hash := sha256.New()
-	_, err = io.Copy(hash, file) // Changed from ioutil.Copy to io.Copy
-	if err != nil {
-		return "", fmt.Errorf("failed to calculate file hash: %v", err)
-	}
-
-	// Return the hexadecimal representation of the hash
-	return hex.EncodeToString(hash.Sum(nil)), nil
 }
