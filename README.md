@@ -19,3 +19,16 @@ This repository is designed to be used with an automated wallpaper updater.
 - Nature
 - Minimal
 - Cityscapes
+
+
+## Installation
+
+To install Wallpaper thingy with a single command:
+```bash
+curl -sSL https://github.com/Toymakerftw/wallpaper/raw/refs/heads/main/install.sh | sudo bash
+```
+
+To uninstall Wallpaper thingy with a single command:
+```bash
+curl -sSL https://github.com/Toymakerftw/wallpaper/raw/refs/heads/main/uninstall.sh | sudo bash
+```

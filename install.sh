@@ -1,13 +1,17 @@
 #!/bin/bash
 
-# Set the Go installation path if not already installed
-GO_INSTALL_PATH="/usr/local/go"
-GO_BINARY_PATH="/usr/local/bin/go"
+# Define variables
+BIN_PATH="/usr/local/bin/"
+CONFIG_DIR="/etc/wallpaper"
+
+# Create necessary directories
+echo "Creating installation directories..."
+sudo mkdir -p "$CONFIG_DIR"
 
 # Download the Go binary and config file
 echo "Downloading Go binary and config file..."
-wget https://github.com/Toymakerftw/wallpaper/raw/refs/heads/main/wallpaper -O /usr/local/bin/wallpaper
-wget https://github.com/Toymakerftw/wallpaper/raw/refs/heads/main/config.json -O /etc/wallpaper/config.json
+wget https://github.com/Toymakerftw/wallpaper/raw/refs/heads/main/wallpaper -O "$BIN_PATH/wallpaper"
+wget https://github.com/Toymakerftw/wallpaper/raw/refs/heads/main/config.json -O "$CONFIG_DIR/config.json"
 
 # Make the binary executable
 sudo chmod +x /usr/local/bin/wallpaper
