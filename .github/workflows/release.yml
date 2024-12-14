@@ -33,3 +33,5 @@ jobs:
             releases/v*/*.png
           generate_release_notes: true
           tag_name: ${{ env.VERSION }}
+          prerelease: false
+          draft: false  # Ensure release is marked as the latest
