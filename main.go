@@ -184,7 +184,17 @@ func downloadWallpaper(ctx context.Context, asset *github.ReleaseAsset, config *
 
 // setWallpaper sets the downloaded file as the system wallpaper
 func setWallpaper(filePath string) error {
-	return wallpaper.SetFromFile(filePath)
+	// Set wallpaper for light mode
+	if err := wallpaper.SetFromFile(filePath); err != nil {
+		return fmt.Errorf("failed to set wallpaper for light mode: %w", err)
+	}
+
+	// Set wallpaper for dark mode
+	if err := wallpaper.SetFromFile(filePath); err != nil {
+		return fmt.Errorf("failed to set wallpaper for dark mode: %w", err)
+	}
+
+	return nil
 }
 
 // saveMetadata persists updated wallpaper metadata to a file
