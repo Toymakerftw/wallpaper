@@ -2,9 +2,11 @@ module wallpaper
 
 go 1.23.3
 
+replace github.com/m1cr0man/go-wallpaper => github.com/reujab/wallpaper v0.0.0-20210630195606-5f9f655b3740
+
 require (
 	github.com/google/go-github/v42 v42.0.0
-	github.com/reujab/wallpaper v0.0.0-20210630195606-5f9f655b3740
+	github.com/m1cr0man/go-wallpaper v0.0.0-00010101000000-000000000000
 )
 
 require (

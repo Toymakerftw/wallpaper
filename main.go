@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/v42/github"
-	"github.com/reujab/wallpaper"
+	"github.com/m1cr0man/go-wallpaper"
 )
 
 // GitHubConfig holds GitHub repository-specific configuration
