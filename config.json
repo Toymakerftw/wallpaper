@@ -1,0 +1,11 @@
+{
+    "github": {
+        "repository_owner": "toymakereftw",
+        "repository_name": "wallpaper",
+        "asset_pattern": "wallpaper-*.jpg"
+    },
+  "metadata_file": "wallpaper_metadata.json",
+  "download_path": "./wallpapers",
+  "update_frequency": 86400,
+  "allowed_file_types": [".jpg", ".png", ".jpeg"]
+}
