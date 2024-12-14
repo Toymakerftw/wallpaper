@@ -5,7 +5,7 @@
         "asset_pattern": "wallpaper-*.jpg"
     },
   "metadata_file": "wallpaper_metadata.json",
-  "download_path": "./wallpapers",
+  "download_path": "/etc/wallpaper",
   "update_frequency": 86400,
   "allowed_file_types": [".jpg", ".png", ".jpeg"]
 }
