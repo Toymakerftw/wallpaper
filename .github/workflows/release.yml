@@ -12,7 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
+      # Create a tag based on the current commit hash or version
+      - name: Create Tag
+        id: create_tag
+        run: |
+          VERSION=$(basename releases/v*/)
+          git tag $VERSION
+          git push origin $VERSION
+        shell: bash
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -20,3 +29,4 @@ jobs:
             releases/v*/*.jpg
             releases/v*/*.png
           generate_release_notes: true
+          tag_name: ${{ steps.create_tag.outputs.version }}
