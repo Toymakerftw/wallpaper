@@ -31,6 +31,7 @@ jobs:
           files: |
             releases/${{ env.VERSION }}/*.jpg
             releases/${{ env.VERSION }}/*.png
+            releases/${{ env.VERSION }}/*.jpeg
           generate_release_notes: true
           tag_name: ${{ env.VERSION }}
           prerelease: false
