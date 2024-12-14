@@ -29,8 +29,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            releases/v*/*.jpg
-            releases/v*/*.png
+            releases/${{ env.VERSION }}/*.jpg
+            releases/${{ env.VERSION }}/*.png
           generate_release_notes: true
           tag_name: ${{ env.VERSION }}
           prerelease: false
