@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'releases/v*/**'
+
+permissions:
+  contents: write  # Grant write permissions to push tags
 
 jobs:
   create-release:
@@ -13,13 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Create a tag based on the current commit hash or version
       - name: Create Tag
         id: create_tag
         run: |
-          VERSION=$(basename releases/v*/)
+          VERSION=$(find releases -mindepth 1 -maxdepth 1 -type d -name 'v*' | sort | tail -n 1 | xargs basename)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git tag $VERSION
-          git push origin $VERSION
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git $VERSION
         shell: bash
 
       - name: Create Release
@@ -29,4 +32,4 @@ jobs:
             releases/v*/*.jpg
             releases/v*/*.png
           generate_release_notes: true
-          tag_name: ${{ steps.create_tag.outputs.version }}
+          tag_name: ${{ env.VERSION }}
