@@ -205,6 +205,13 @@ func setWallpaper(filePath string) error {
 	}
 
 	log.Println("Light mode wallpaper successfully set.")
+
+	// Show notification
+	cmd := exec.Command("notify-send", "-t", "2000", "Wallpaper Changed", "New wallpaper has been set.")
+	if err := cmd.Run(); err != nil {
+		log.Printf("Failed to show notification: %v", err)
+	}
+
 	return nil
 }
 
