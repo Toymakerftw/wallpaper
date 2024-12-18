@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
@@ -11,7 +12,9 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/go-github/v42/github"
@@ -204,15 +207,90 @@ func setWallpaper(filePath string) error {
 		log.Println("Dark mode wallpaper is not supported or writable on this system.")
 	}
 
-	log.Println("Light mode wallpaper successfully set.")
+	// Send interactive notification
+	cmd := exec.Command("gdbus", "call",
+		"--session",
+		"--dest", "org.freedesktop.Notifications",
+		"--object-path", "/org/freedesktop/Notifications",
+		"--method", "org.freedesktop.Notifications.Notify",
+		"Wallpaper Service",  // App name
+		"0",                  // Replace ID
+		"dialog-information", // Icon
+		"Wallpaper Updated",  // Summary
+		"A new wallpaper has been set from the latest GitHub release.", // Body
+		"['disable_service', 'Disable Service']",                       // Actions
+		"{}",                                                           // Hints
+		"60000")                                                        // Timeout (60 seconds)
 
-	// Show notification
-	cmd := exec.Command("notify-send", "-t", "2000", "Wallpaper Changed", "New wallpaper has been set.")
-	if err := cmd.Run(); err != nil {
-		log.Printf("Failed to show notification: %v", err)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("Failed to show notification: %v - Output: %s", err, string(output))
+		return fmt.Errorf("failed to send notification: %w", err)
 	}
 
+	// Parse notification ID from output
+	notificationID := parseNotificationID(string(output))
+
+	// Start a goroutine to handle potential service disable action
+	go monitorNotificationAction(notificationID)
+
+	log.Println("Wallpaper notification sent successfully.")
 	return nil
+}
+
+// parseNotificationID extracts the notification ID from gdbus call output
+func parseNotificationID(output string) string {
+	re := regexp.MustCompile(`\d+`)
+	matches := re.FindString(output)
+	return matches
+}
+
+// monitorNotificationAction watches for the disable service action
+func monitorNotificationAction(notificationID string) {
+	if notificationID == "" {
+		return
+	}
+
+	cmd := exec.Command("gdbus", "monitor",
+		"--session",
+		"--dest", "org.freedesktop.Notifications")
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Printf("Failed to create stdout pipe: %v", err)
+		return
+	}
+
+	if err := cmd.Start(); err != nil {
+		log.Printf("Failed to start gdbus monitor: %v", err)
+		return
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// Check for action invocation matching our notification
+		if strings.Contains(line, "ActionInvoked") &&
+			strings.Contains(line, notificationID) &&
+			strings.Contains(line, "'disable_service'") {
+
+			// Attempt to disable the systemd service
+			disableCmd := exec.Command("sudo", "systemctl", "disable", "wallpaper.service")
+			if err := disableCmd.Run(); err != nil {
+				log.Printf("Failed to disable wallpaper service: %v", err)
+			} else {
+				log.Println("Wallpaper service has been disabled via notification")
+			}
+			break
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Printf("Error reading gdbus output: %v", err)
+	}
+
+	cmd.Wait()
 }
 
 // saveMetadata persists updated wallpaper metadata to a file
