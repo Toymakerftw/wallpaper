@@ -9,7 +9,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/google/go-github/v42/github"
@@ -189,11 +191,20 @@ func setWallpaper(filePath string) error {
 		return fmt.Errorf("failed to set wallpaper for light mode: %w", err)
 	}
 
-	// Set wallpaper for dark mode
-	if err := wallpaper.SetFromFile(filePath); err != nil {
-		return fmt.Errorf("failed to set wallpaper for dark mode: %w", err)
+	// Check if Gnome's dark mode wallpaper is supported
+	out, err := exec.Command("gsettings", "writable", "org.gnome.desktop.background", "picture-uri-dark").Output()
+	if err == nil && string(out) == "true\n" {
+		// Set wallpaper for dark mode
+		err := exec.Command("gsettings", "set", "org.gnome.desktop.background", "picture-uri-dark", strconv.Quote("file://"+filePath)).Run()
+		if err != nil {
+			return fmt.Errorf("failed to set wallpaper for dark mode: %w", err)
+		}
+		log.Println("Dark mode wallpaper successfully set.")
+	} else {
+		log.Println("Dark mode wallpaper is not supported or writable on this system.")
 	}
 
+	log.Println("Light mode wallpaper successfully set.")
 	return nil
 }
 
